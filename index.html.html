@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Simulador de tallas Chef Works</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: una columna; formulario de medidas arriba, resultado grande al lado en desktop; guía y tablas debajo */
+:root{
+  --bg:#F6F4F1; --surface:#FFFFFF; --fg:#161514; --muted:#6B6763; --line:#E4E0DA;
+  --accent:#C8102E; --accent-fg:#FFFFFF; --chip:#F1EEEA; --hi:#FFE7A3;
+  --display:'Oswald','Arial Narrow',Arial,sans-serif; --body:'DM Sans',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141312; --surface:#1E1C1B; --fg:#F3F0EC; --muted:#A8A29C; --line:#34302D;
+  --accent:#FF4D63; --accent-fg:#141312; --chip:#2A2725; --hi:#5A4612; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141312; --surface:#1E1C1B; --fg:#F3F0EC; --muted:#A8A29C; --line:#34302D;
+  --accent:#FF4D63; --accent-fg:#141312; --chip:#2A2725; --hi:#5A4612; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(32px,6vw,56px);line-height:1;margin:0;text-wrap:balance}
+.lead{color:var(--muted);max-width:60ch;margin:0}
+.toggle{display:inline-flex;background:var(--chip);border-radius:999px;padding:4px;gap:4px;align-self:flex-start}
+.toggle button{font:600 15px var(--body);border:0;background:transparent;color:var(--fg);padding:10px 22px;border-radius:999px;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.toggle button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:24px;align-items:start}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;min-width:0}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:460px){.fields{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-weight:700;font-size:15px}
+.field small{color:var(--muted);font-size:13px;line-height:1.35}
+.inp{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);overflow:hidden}
+.inp input{flex:1;min-width:0;border:0;background:transparent;color:var(--fg);font:500 20px var(--body);padding:10px 12px;font-variant-numeric:tabular-nums}
+.inp span{padding:0 12px;color:var(--muted);font-size:14px}
+.hint{margin:16px 0 0;font-size:13px;color:var(--muted)}
+.res{display:flex;flex-direction:column;gap:18px}
+.res-row{display:flex;gap:16px}
+.size{flex:1;background:var(--accent);color:var(--accent-fg);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.size .k{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+.size .v{font-family:var(--display);font-weight:700;font-size:64px;line-height:1}
+.size.na{background:var(--chip);color:var(--muted)}
+.breakdown{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.breakdown li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:8px;font-size:15px}
+.breakdown li b{font-variant-numeric:tabular-nums}
+.tag{font-size:12px;font-weight:700;background:var(--hi);color:var(--fg);border-radius:999px;padding:2px 8px;margin-left:6px}
+.notes{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.notes li{font-size:14px;color:var(--fg);background:var(--chip);border-radius:12px;padding:10px 12px}
+h2{font-family:var(--display);font-weight:600;text-transform:uppercase;font-size:24px;margin:0 0 12px}
+.guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.guide div{border-top:2px solid var(--fg);padding-top:10px}
+.guide b{display:block;font-size:15px}
+.guide p{margin:4px 0 0;font-size:14px;color:var(--muted)}
+details{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+summary{font-weight:700;cursor:pointer}
+.tables{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:14px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+caption{text-align:left;font-weight:700;padding-bottom:6px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td:first-child,th:first-child{text-align:left;font-weight:700;color:var(--fg)}
+tr.match td{background:var(--hi)}
+footer{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.size .v{transition:transform .2s}.size.bump .v{transform:scale(1.08)}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Kit estudiante · Chef Works Chile</span>
+    <h1>¿Qué talla soy?</h1>
+    <p class="lead">Ingresa tus medidas en centímetros y te decimos qué talla de chaqueta y de pantalón te queda. Si una medida cae entre dos tallas, recomendamos la más grande para que te muevas cómoda o cómodamente en la cocina.</p>
+  </header>
+
+  <div class="toggle" role="group" aria-label="Tipo de corte">
+    <button type="button" id="t-unisex" aria-pressed="true">Unisex</button>
+    <button type="button" id="t-mujer" aria-pressed="false">Mujer</button>
+  </div>
+
+  <div class="grid">
+    <form class="card" id="form" autocomplete="off">
+      <div class="fields">
+        <div class="field"><label for="pecho">Pecho</label><div class="inp"><input id="pecho" type="number" inputmode="decimal" min="40" max="200" step="0.5"><span>cm</span></div><small>Chaqueta</small></div>
+        <div class="field"><label for="cintura">Cintura</label><div class="inp"><input id="cintura" type="number" inputmode="decimal" min="40" max="200" step="0.5"><span>cm</span></div><small>Chaqueta y pantalón</small></div>
+        <div class="field"><label for="cadera">Cadera baja</label><div class="inp"><input id="cadera" type="number" inputmode="decimal" min="40" max="200" step="0.5"><span>cm</span></div><small>Chaqueta y pantalón</small></div>
+        <div class="field" id="f-cbaja"><label for="cbaja">Cintura baja</label><div class="inp"><input id="cbaja" type="number" inputmode="decimal" min="40" max="200" step="0.5"><span>cm</span></div><small>Pantalón (solo unisex)</small></div>
+        <div class="field"><label for="entre">Entrepierna</label><div class="inp"><input id="entre" type="number" inputmode="decimal" min="40" max="120" step="0.5"><span>cm</span></div><small>Largo del pantalón</small></div>
+      </div>
+      <p class="hint" id="example-note">Los valores cargados son un ejemplo. Reemplázalos por tus medidas.</p>
+    </form>
+
+    <section class="card res" aria-live="polite">
+      <div class="res-row">
+        <div class="size" id="r-chaq"><span class="k">Chaqueta</span><span class="v">–</span></div>
+        <div class="size" id="r-pant"><span class="k">Pantalón</span><span class="v">–</span></div>
+      </div>
+      <ul class="breakdown" id="breakdown"></ul>
+      <ul class="notes" id="notes"></ul>
+    </section>
+  </div>
+
+  <section>
+    <h2>Cómo medirte</h2>
+    <div class="guide">
+      <div><b>Pecho</b><p>Rodea la parte más ancha del pecho, bajo las axilas, con la cinta horizontal.</p></div>
+      <div><b>Cintura</b><p>Mide en la parte más angosta del torso, sobre el ombligo, sin apretar.</p></div>
+      <div><b>Cintura baja</b><p>Mide unos centímetros bajo la cintura, donde normalmente usas el pantalón.</p></div>
+      <div><b>Cadera baja</b><p>Rodea la parte más ancha de la cadera, con los pies juntos.</p></div>
+      <div><b>Entrepierna</b><p>Desde la unión de las piernas hasta el tobillo, por la parte interior.</p></div>
+    </div>
+  </section>
+
+  <details>
+    <summary>Ver tablas de tallas</summary>
+    <div class="tables" id="tables"></div>
+  </details>
+
+  <footer>Medidas en centímetros, tomadas de las tablas de tallas Chef Works (corte clásico). Es una guía: si tienes dudas, escríbenos a chefworks@icbfs.cl o visítanos en Gilberto Fuenzalida 56, Las Condes.</footer>
+</div>
+
+<script>
+const SIZES=['XS','S','M','L','XL','2XL','3XL','4XL'];
+const DATA={
+  unisex:{
+    chaqueta:{pecho:[[86,91],[94,99],[102,107],[112,117],[122,127],[132,135],[142,147],[152,157]],
+              cintura:[[72,77],[80,85],[88,93],[98,103],[108,113],[118,121],[128,133],[138,144]],
+              cadera:[[85,90],[93,98],[100,105],[110,116],[121,126],[131,134],[141,146],[151,156]]},
+    pantalon:{cintura:[[72,77],[80,85],[88,93],[98,103],[108,113],[118,121],[128,133],[138,144]],
+              cbaja:[[76,81],[84,89],[91,97],[102,107],[112,117],[122,127],[132,137],[142,147]],
+              cadera:[[85,90],[93,98],[100,105],[110,116],[121,126],[130,135],[141,146],[151,156]],
+              entre:[79,81,81,81,81,81,81,81]}
+  },
+  mujer:{
+    chaqueta:{pecho:[[81,86],[89,94],[97,102],[107,112],[117,122],[127,132],[137,142],[147,152]],
+              cintura:[[61,66],[69,74],[76,81],[86,91],[97,102],[107,112],[117,122],[137,142]],
+              cadera:[[84,89],[91,97],[99,104],[109,114],[119,124],[130,135],[140,145],[150,155]]},
+    pantalon:{cintura:[[61,66],[69,74],[76,81],[86,91],[97,102],[107,112],[117,122]],
+              cadera:[[79,84],[84,89],[91,97],[99,104],[109,114],[130,135],[140,145]],
+              entre:[79,79,79,79,79,79,79]}
+  }
+};
+const LABEL={pecho:'Pecho',cintura:'Cintura',cadera:'Cadera baja',cbaja:'Cintura baja'};
+const EXAMPLE={unisex:{pecho:104,cintura:90,cadera:102,cbaja:94,entre:81},mujer:{pecho:92,cintura:72,cadera:93,cbaja:'',entre:79}};
+let tipo='unisex', touched=false;
+const $=id=>document.getElementById(id);
+const ids=['pecho','cintura','cadera','cbaja','entre'];
+
+function sizeFor(ranges,v){
+  for(let i=0;i<ranges.length;i++){ if(v<=ranges[i][1]) return {i, between: i>0 && v<ranges[i][0] && v>ranges[i-1][1]}; }
+  return {i:ranges.length, over:true};
+}
+function garment(g,vals){
+  const t=DATA[tipo][g]; const parts=[]; let max=-1, over=false;
+  for(const k of Object.keys(t)){ if(k==='entre') continue; const v=vals[k]; if(!(v>0)) continue;
+    const r=sizeFor(t[k],v); parts.push({k,v,...r}); if(r.over) over=true; else if(r.i>max) max=r.i; }
+  return {parts,max,over,n:t[Object.keys(t)[0]].length};
+}
+function read(){ const o={}; ids.forEach(id=>{const x=parseFloat($(id).value); o[id]=isNaN(x)?null:x;}); if(tipo==='mujer') o.cbaja=null; return o; }
+function setBox(el,label){ const v=el.querySelector('.v'); const changed=v.textContent!==label; v.textContent=label; el.classList.toggle('na',label==='–'||label==='Consulta');
+  if(changed){el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');} }
+
+function render(){
+  const vals=read(); const ch=garment('chaqueta',vals), pa=garment('pantalon',vals);
+  const lab=g=> g.over? 'Consulta' : (g.max<0?'–':SIZES[g.max]);
+  setBox($('r-chaq'),lab(ch)); setBox($('r-pant'),lab(pa));
+  const bd=$('breakdown'); bd.innerHTML='';
+  const rows=[];
+  ch.parts.forEach(p=>rows.push({g:'Chaqueta',...p,max:ch.max}));
+  pa.parts.forEach(p=>rows.push({g:'Pantalón',...p,max:pa.max}));
+  rows.forEach(p=>{ const li=document.createElement('li');
+    li.innerHTML=`<span>${p.g} · ${LABEL[p.k]} <span style="color:var(--muted)">${p.v} cm</span></span><b>${p.over?'Fuera de tabla':SIZES[p.i]}${(!p.over&&p.i===p.max&&rows.filter(r=>r.g===p.g).length>1)?'<span class="tag">define</span>':''}</b>`;
+    bd.appendChild(li); });
+  const notes=$('notes'); notes.innerHTML=''; const add=t=>{const li=document.createElement('li'); li.textContent=t; notes.appendChild(li);};
+  if(!rows.length) add('Ingresa al menos una medida para ver tu talla.');
+  [['Chaqueta',ch],['Pantalón',pa]].forEach(([n,g])=>{
+    if(g.over) add(`${n}: una de tus medidas supera la talla más grande de la tabla (${SIZES[g.n-1]}). Escríbenos y te ayudamos a encontrar la mejor opción.`);
+    else { const sizes=new Set(g.parts.map(p=>p.i)); if(sizes.size>1) add(`${n}: tus medidas marcan tallas distintas. Te recomendamos ${SIZES[g.max]}, la más grande, para que no te quede apretada.`);
+      if(g.parts.some(p=>p.between)) add(`${n}: una medida cae entre dos tallas; elegimos la más grande.`); }
+  });
+  if(vals.entre>0 && pa.max>=0 && !pa.over){ const L=DATA[tipo].pantalon.entre[pa.max];
+    if(vals.entre>L+2) add(`Largo: el pantalón ${SIZES[pa.max]} mide ${L} cm de entrepierna, menos que tu medida (${vals.entre} cm). Podría quedarte un poco corto.`);
+    else if(vals.entre<L-4) add(`Largo: el pantalón ${SIZES[pa.max]} mide ${L} cm de entrepierna. Te quedará algo largo; se puede hacer basta.`);
+    else add(`Largo: el pantalón ${SIZES[pa.max]} mide ${L} cm de entrepierna, cercano a tu medida.`); }
+  if(tipo==='mujer') add('El pantalón de mujer llega hasta 3XL. La chaqueta de mujer llega hasta 4XL.');
+  markTables(ch.max,pa.max);
+  $('example-note').hidden=touched;
+}
+
+function buildTables(){
+  const box=$('tables'); box.innerHTML='';
+  const mk=(title,cols,heads,g)=>{
+    const t=DATA[tipo][g]; const n=t[cols[0]].length;
+    let h=`<div class="tw"><table data-g="${g}"><caption>${title}</caption><tr><th>Talla</th>${heads.map(x=>`<th>${x}</th>`).join('')}</tr>`;
+    for(let i=0;i<n;i++){ h+=`<tr data-i="${i}"><td>${SIZES[i]}</td>${cols.map(c=>{const v=t[c][i]; return `<td>${Array.isArray(v)?v[0]+'–'+v[1]:v}</td>`;}).join('')}</tr>`; }
+    return h+'</table></div>'; };
+  const who=tipo==='unisex'?'unisex':'mujer';
+  box.innerHTML = mk(`Chaqueta ${who}`,['pecho','cintura','cadera'],['Pecho','Cintura','Cadera baja'],'chaqueta')
+    + (tipo==='unisex'? mk('Pantalón unisex',['cintura','cbaja','cadera','entre'],['Cintura','Cintura baja','Cadera','Entrepierna'],'pantalon')
+                      : mk('Pantalón mujer',['cintura','cadera','entre'],['Cintura','Cadera','Entrepierna'],'pantalon'));
+}
+function markTables(c,p){ document.querySelectorAll('table[data-g]').forEach(tb=>{ const m=tb.dataset.g==='chaqueta'?c:p;
+  tb.querySelectorAll('tr[data-i]').forEach(tr=>tr.classList.toggle('match',+tr.dataset.i===m)); }); }
+
+function setTipo(t){ tipo=t; $('t-unisex').setAttribute('aria-pressed',t==='unisex'); $('t-mujer').setAttribute('aria-pressed',t==='mujer');
+  $('f-cbaja').hidden = t==='mujer';
+  if(!touched){ const e=EXAMPLE[t]; ids.forEach(id=>$(id).value=e[id]); }
+  buildTables(); render(); }
+
+$('t-unisex').addEventListener('click',()=>setTipo('unisex'));
+$('t-mujer').addEventListener('click',()=>setTipo('mujer'));
+ids.forEach(id=>$(id).addEventListener('input',()=>{touched=true; render();}));
+$('form').addEventListener('submit',e=>e.preventDefault());
+setTipo('unisex');
+</script>
+
+</body>
+</html>
